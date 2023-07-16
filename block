@@ -1,0 +1,83 @@
+local _IsBlockingEvent = game.ReplicatedStorage:WaitForChild("IsGaurdingEvent")
+local TS =  game.TweenService
+
+local BlockedSound =  script.BlockedSound
+local BlockBreakSound =  script.BlockBreakSound
+
+local blockEffect =  script.BlockEffect
+local blockBreakEffect = script.BlockBreakEffect
+
+local BlockAnimation =  script:WaitForChild("BlockedPunch")
+local BlockBreakAnimation = script:WaitForChild("BlockBreak")
+
+_IsBlockingEvent.Event:Connect(function(eChar,count,Char)
+	local eHum =  eChar.Humanoid
+	local eHumrp = eChar.HumanoidRootPart
+
+	if count < 5 then
+		eHum:LoadAnimation(BlockAnimation):Play()
+
+		local BlockEffect = blockEffect:Clone()
+		BlockEffect.Parent =  eHumrp	
+		BlockEffect:Emit(1)
+		game.Debris:AddItem(BlockEffect,.5)	
+
+
+		local Blocked = BlockedSound:Clone()
+		Blocked.Parent = eHum.Parent.HumanoidRootPart
+		Blocked:Play()
+		game.Debris:AddItem(Blocked,.282)
+	elseif count == 5 then
+		local Humrp =  Char.HumanoidRootPart
+		
+		eChar:FindFirstChild("IsBlocking"):Destroy()
+		
+		for i,v in pairs(Humrp:GetChildren())do
+			if v.Name == "MoveMe"then
+				v:Destroy()
+			end
+		end
+	
+
+		local GaurdBreakSound = BlockBreakSound:Clone()
+		GaurdBreakSound.Parent =  eHumrp
+		GaurdBreakSound:Play()
+		game.Debris:AddItem(GaurdBreakSound,1.854)
+
+		local BlockBreakValue = Instance.new("BoolValue")
+		BlockBreakValue.Parent = eChar
+		BlockBreakValue.Name = "BlockBreak"
+		game.Debris:AddItem(BlockBreakValue,2)
+
+		for i,v in pairs (eHumrp:GetChildren())do
+			if v:IsA("BodyVelocity")then 
+				v:destroy()
+			end	
+		end
+
+
+
+		local knee = eHum:LoadAnimation(BlockBreakAnimation)
+		knee:Play()
+
+
+
+		local BlockBreakvel = Instance.new("BodyVelocity",eHumrp)
+		BlockBreakvel.MaxForce = Vector3.new(math.huge,math.huge,math.huge)
+		BlockBreakvel.Name =  "BlockBreakVEl"
+		BlockBreakvel.Velocity = Vector3.new(0,0,0)
+		game.Debris:AddItem(BlockBreakvel,2)
+
+
+
+		local zEffect = blockBreakEffect:Clone()
+		zEffect.Parent = eHumrp
+		zEffect:Emit(1)
+		game.Debris:AddItem(zEffect,1.5)
+
+
+
+
+
+	end
+end)
